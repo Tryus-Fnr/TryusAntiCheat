@@ -8,6 +8,7 @@ Supported MC versions: 1.8-1.21. Folia, Geyser and [other plugins](F-A-Q.md) are
 * [Modrinth page](https://modrinth.com/plugin/lightanticheat)
 * [Discord server](https://discord.gg/EQExhK8Ghm)
 * List of checks: [CHECKS.md](CHECKS.md)
+* Folia compatibility: [FOLIA_COMPATIBILITY.md](FOLIA_COMPATIBILITY.md)
 * Frequently asked questions: [F-A-Q.md](F-A-Q.md)
 * More precise config: [MILKv2's config](https://github.com/MILKv2/lightanticheat-config)
 
