@@ -37,6 +37,7 @@ import me.vekster.lightanticheat.check.checks.movement.nofall.NoFallB;
 import me.vekster.lightanticheat.check.checks.movement.noslow.NoSlowA;
 import me.vekster.lightanticheat.check.checks.movement.speed.*;
 import me.vekster.lightanticheat.check.checks.movement.step.StepA;
+import me.vekster.lightanticheat.check.checks.movement.teleport.TeleportA;
 import me.vekster.lightanticheat.check.checks.movement.trident.TridentA;
 import me.vekster.lightanticheat.check.checks.movement.vehicle.VehicleA;
 import me.vekster.lightanticheat.check.checks.packet.badpackets.BadPacketsA;
@@ -139,6 +140,7 @@ public class Main extends JavaPlugin {
         registerCheckListener(new SpeedF());
         registerCheckListener(new SpeedC());
         registerCheckListener(new StepA());
+        registerCheckListener(new TeleportA());
         registerCheckListener(new TridentA());
         registerCheckListener(new BoatA());
         registerCheckListener(new VehicleA());

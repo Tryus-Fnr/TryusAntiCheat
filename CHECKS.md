@@ -19,6 +19,7 @@
 * FastClimbA (Speed while climbing)
 * NoSlowA (Speed while in cobweb)
 * StepA (Step hack)
+* TeleportA (ClickTP hack detection)
 * BoatA (BoatFly hack, horizontal speed)
 * VehicleA (Other vehicles)
 * ElytraA (Elytra check)

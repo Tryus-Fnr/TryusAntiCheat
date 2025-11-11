@@ -25,6 +25,7 @@ public enum CheckName {
     ELYTRA_B(CheckType.MOVEMENT, "Elytra_B", "Acceleration"),
     ELYTRA_C(CheckType.MOVEMENT, "Elytra_C", "Takeoff"),
     TRIDENT_A(CheckType.MOVEMENT, "Trident_A", "TridentBoost"),
+    TELEPORT_A(CheckType.MOVEMENT, "Teleport_A", "ClickTP"),
     KILLAURA_A(CheckType.COMBAT, "KillAura_A", "AimBot"),
     KILLAURA_B(CheckType.COMBAT, "KillAura_B", "HitBox"),
     KILLAURA_C(CheckType.COMBAT, "KillAura_C", "ThroughBlock"),
