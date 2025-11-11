@@ -78,6 +78,12 @@ public class LACPlayerListener implements Listener {
         lacPlayer.leaveTime = 0;
         lacPlayer.cache = new PlayerCache(player);
         lacPlayer.cooldown = new PlayerCooldown();
+        
+        // If player rejoins while elytra flying, mark gliding to prevent false flight flags
+        if (VerPlayer.isGliding(player)) {
+            lacPlayer.cache.lastGliding = System.currentTimeMillis();
+            lacPlayer.cache.glidingTicks = 5; // Set positive ticks to indicate active gliding
+        }
     }
 
     private static void loadLacPlayersOnReload() {

@@ -60,6 +60,13 @@ public class SpeedE extends MovementCheck implements Listener {
     public void afterMovement(LACAsyncPlayerMoveEvent event) {
         Buffer buffer = getBuffer(event.getPlayer(), true);
         buffer.put("lastMovement", System.currentTimeMillis());
+        
+        // Track movement for ClickTP pattern detection
+        double horizontalDistance = distanceHorizontal(event.getFrom(), event.getTo());
+        if (horizontalDistance > 0.1) {
+            // Reset OnGroundOnly counter when player actually moves
+            buffer.put("onGroundOnlyCount", 0);
+        }
     }
 
     @EventHandler(priority = EventPriority.LOW)
@@ -108,7 +115,24 @@ public class SpeedE extends MovementCheck implements Listener {
                 getEffectAmplifier(cache, VerUtil.potions.get("DOLPHINS_GRACE")) > 3)
             return;
 
-        if (distanceHorizontal(event.getFrom(), event.getTo()) <= 6)
+        double horizontalDistance = distanceHorizontal(event.getFrom(), event.getTo());
+        
+        // ClickTP detection: Large single-packet movements (typically >10 blocks, up to 200 blocks)
+        // ClickTP sends the player directly to target location in one movement packet
+        if (horizontalDistance > 10) {
+            // This is likely ClickTP - instant large displacement without intermediate positions
+            event.setCancelled(true);
+            FoliaUtil.teleportPlayer(player, event.getFrom());
+            
+            Scheduler.runTaskLater(() -> {
+                if (System.currentTimeMillis() - buffer.getLong("lastTeleport") < 1000)
+                    return;
+                callViolationEvent(player, lacPlayer, event);
+            }, 1);
+            return;
+        }
+        
+        if (horizontalDistance <= 6)
             return;
 
         event.setCancelled(true);
