@@ -114,3 +114,9 @@ shadowJar {
     archiveClassifier.set('')
     destinationDirectory.set(file(destinationPath))
 }
+
+// Ensure the shadow (fat) JAR is produced during the regular build so dependencies
+// like ConfigUpdater are included in the plugin JAR that you deploy to the server.
+tasks.named('build') {
+    dependsOn shadowJar
+}
