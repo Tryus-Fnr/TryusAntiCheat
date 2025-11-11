@@ -64,17 +64,35 @@ public class FoliaUtil {
         Location location = player.getLocation();
         double x = location.getX();
         double z = location.getZ();
+        
+        // Check only recent positions (last 10 ticks) for stability
+        // This allows movement events to fire more consistently while still
+        // preventing issues during actual cross-region teleports
+        int recentCheckCount = Math.min(10, fLocations.size());
         FLocation prevFLoc = null;
-        for (int i = fLocations.size() - 1; i >= 0; i--) {
+        int largeJumps = 0;
+        
+        for (int i = fLocations.size() - 1; i >= fLocations.size() - recentCheckCount; i--) {
             FLocation fLocation = fLocations.get(i);
             if (!fLocation.world.equals(worldName))
                 return false;
             if (prevFLoc == null) {
-                if (Math.sqrt(Math.pow(x - fLocation.x, 2) + Math.pow(z - fLocation.z, 2)) >= 32)
-                    return false;
+                // Check current position against most recent stored position
+                double distance = Math.sqrt(Math.pow(x - fLocation.x, 2) + Math.pow(z - fLocation.z, 2));
+                if (distance >= 32) {
+                    largeJumps++;
+                    // Allow one large jump (legitimate teleport), but not multiple
+                    if (largeJumps > 1)
+                        return false;
+                }
             } else {
-                if (Math.sqrt(Math.pow(prevFLoc.x - fLocation.x, 2) + Math.pow(prevFLoc.z - fLocation.z, 2)) >= 32)
-                    return false;
+                // Check consistency between stored positions
+                double distance = Math.sqrt(Math.pow(prevFLoc.x - fLocation.x, 2) + Math.pow(prevFLoc.z - fLocation.z, 2));
+                if (distance >= 32) {
+                    largeJumps++;
+                    if (largeJumps > 1)
+                        return false;
+                }
             }
             prevFLoc = fLocation;
         }
