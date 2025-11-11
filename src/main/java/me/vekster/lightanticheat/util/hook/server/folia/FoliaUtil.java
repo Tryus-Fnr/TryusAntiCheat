@@ -137,8 +137,17 @@ public class FoliaUtil {
     }
 
     public static void teleportPlayer(Player player, Location location) {
-        if (!isFolia()) player.teleport(location);
-        else foliaLib.getImpl().teleportAsync(player, location);
+        if (!isFolia()) {
+            // On Spigot/Bukkit, ensure teleport happens on main thread
+            if (Bukkit.isPrimaryThread()) {
+                player.teleport(location);
+            } else {
+                Bukkit.getScheduler().runTask(Main.getInstance(), () -> player.teleport(location));
+            }
+        } else {
+            // On Folia, use async teleport which handles thread safety internally
+            foliaLib.getImpl().teleportAsync(player, location);
+        }
     }
 
     public static class FLocation {
