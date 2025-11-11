@@ -60,6 +60,13 @@ public class SpeedE extends MovementCheck implements Listener {
     public void afterMovement(LACAsyncPlayerMoveEvent event) {
         Buffer buffer = getBuffer(event.getPlayer(), true);
         buffer.put("lastMovement", System.currentTimeMillis());
+        
+        // Track movement for ClickTP pattern detection
+        double horizontalDistance = distanceHorizontal(event.getFrom(), event.getTo());
+        if (horizontalDistance > 0.1) {
+            // Reset OnGroundOnly counter when player actually moves
+            buffer.put("onGroundOnlyCount", 0);
+        }
     }
 
     @EventHandler(priority = EventPriority.LOW)

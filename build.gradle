@@ -43,34 +43,9 @@ dependencies {
 }
 
 java {
-    // Try to use a local JAVA_HOME for Java 8 if available. If not present, avoid automatic
-    // toolchain provisioning (which may try to download JDKs) and fall back to source/target
-    // compatibility for Java 8 so the build uses the system JVM.
-    def javaHome = System.getenv('JAVA_HOME')
-    if (javaHome) {
-        toolchain {
-            languageVersion.set(JavaLanguageVersion.of(8))
-            installationPath.set(file(javaHome))
-        }
-        // Also set compat for tools that read sourceCompatibility/targetCompatibility
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
-    } else {
-        // No JAVA_HOME -> don't configure automatic toolchain provisioning (it would try to
-        // download a JDK and fail if repositories aren't configured). Use the JVM running
-        // Gradle and compile for Java 8 compatibility.
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
-        // Ensure JavaCompile uses -source/-target or --release where supported
-        tasks.withType(JavaCompile).configureEach {
-            // options.release is available on newer Gradle/JDKs; guard to avoid errors on older toolchains
-            try {
-                options.release.set(8)
-            } catch (Exception ignored) {
-                options.compilerArgs += ['-source', '1.8', '-target', '1.8']
-            }
-        }
-    }
+    // Set source and target compatibility for Java 8
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
 }
 
 publishing {
