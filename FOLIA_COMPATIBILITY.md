@@ -1,31 +1,43 @@
 # Folia Compatibility Notes
 
-## Known Issues
+## Improvements Made
 
-### Movement Check Behavior Differences
+### Movement Check Stability Enhancement
 
-On Folia servers, some movement checks (SpeedA, SpeedC, FlightB) may not trigger as frequently as on Spigot/Bukkit servers due to the way Folia's regionized threading works.
+The `FoliaUtil.isStable()` check has been improved to better support movement checks on Folia servers.
 
-#### Root Cause
-Folia uses regionized threading where different chunks/regions run on different threads. When a player moves across region boundaries (every 32 blocks), the `FoliaUtil.isStable()` check returns false to prevent cross-region issues. This causes movement events (`LACAsyncPlayerMoveEvent`) to be skipped during region transitions.
+#### Previous Behavior
+The original implementation checked all 30 historical positions and rejected movement events if ANY position showed a 32+ block jump. This was too strict and caused legitimate movement events to be skipped frequently, preventing Speed and Flight checks from working properly.
+
+#### Current Behavior
+The improved implementation:
+- Checks only the most recent 10 positions instead of all 30
+- Allows for one large jump (legitimate teleport) but rejects multiple consecutive large jumps
+- This enables movement events to fire more consistently while still preventing issues during actual cross-region teleports
 
 #### Impact
-- **SpeedA, SpeedC, FlightB**: These checks rely on consistent movement event streams to accumulate violations. When events are skipped during region transitions, the checks don't accumulate enough violations to flag the player.
-- **ElytraB**: Still works because elytra flight tends to stay within region boundaries more consistently.
-- **TeleportA (ClickTP)**: Should work on both Folia and Spigot/Bukkit as it detects sudden position changes which are less affected by incremental event skipping.
+- **SpeedA, SpeedC, FlightB**: Should now work more consistently on Folia as movement events will fire more reliably
+- **ElytraB**: Continues to work as before
+- **TeleportA (ClickTP)**: Works on both Folia and Spigot/Bukkit as it detects sudden position changes
 
-#### Workarounds
-1. The `isStable()` check in `LACEventCaller.callMovementEvents()` could be made less restrictive
-2. Movement checks could be modified to tolerate gaps in the event stream
-3. Alternative packet-level detection could supplement movement event detection
+## Known Limitations
+
+### Region Boundary Crossings
+
+On Folia servers, very rapid movement across multiple region boundaries (>32 blocks every few ticks) may still cause some movement events to be skipped. This is by design to prevent cross-region threading issues.
 
 ## Testing Recommendations
 
 When testing on Folia:
 1. Test movement hacks both within a single region (< 32 block movements) and across regions
 2. Monitor the frequency of movement events being fired vs. being skipped
-3. Consider the player's movement patterns - frequent long-distance movement will trigger more region transitions
+3. Compare detection rates between Folia and Spigot/Bukkit servers
+4. Test with various movement speeds to ensure checks work across different scenarios
 
 ## Future Improvements
 
-Consider implementing packet-level detection for Speed and Flight checks that doesn't rely on `isStable()`, similar to how TimerA uses packet events directly.
+If further issues are encountered:
+1. Consider implementing packet-level detection for Speed and Flight checks that doesn't rely on `isStable()`
+2. Add configurable thresholds for the stability check
+3. Implement region-aware movement tracking
+
