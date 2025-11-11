@@ -215,23 +215,36 @@ public class FlightB extends MovementCheck implements Listener {
             height -= (jumpEffectAmplifier - 2) * 0.2;
         height = height * 0.9 - 0.1 - buffer.getInt("interactiveOffset");
 
-        double attributeAmount = Math.max(
+        double jumpAttributeAmount = Math.max(
                 getItemStackAttributes(player, "GENERIC_JUMP_STRENGTH"),
                 getPlayerAttributes(player).getOrDefault("GENERIC_JUMP_STRENGTH", 0.42) - 0.42
         );
-        if (attributeAmount != 0)
+        double gravityAttributeAmount = Math.max(
+                getItemStackAttributes(player, "GENERIC_GRAVITY"),
+                getPlayerAttributes(player).getOrDefault("GENERIC_GRAVITY", 0.08) - 0.08
+        );
+        
+        if (jumpAttributeAmount != 0 || gravityAttributeAmount != 0)
             buffer.put("attribute", System.currentTimeMillis());
         else if (System.currentTimeMillis() - buffer.getLong("attribute") < 4000)
             return;
-        if (attributeAmount != 0) {
-            if (attributeAmount <= 0.25)
+            
+        if (jumpAttributeAmount != 0) {
+            if (jumpAttributeAmount <= 0.25)
                 height -= 10.0;
-            else if (attributeAmount <= 0.5)
+            else if (jumpAttributeAmount <= 0.5)
                 height -= 20.0;
-            else if (attributeAmount <= 1.0)
+            else if (jumpAttributeAmount <= 1.0)
                 height -= 40.0;
             else
                 height -= 80.0;
+        }
+        
+        // Account for custom gravity - lower gravity allows higher flight
+        if (gravityAttributeAmount != 0) {
+            // gravityAttributeAmount is negative if gravity is reduced
+            double gravityMultiplier = Math.abs(gravityAttributeAmount) / 0.08;
+            height -= maxHeight * gravityMultiplier * 1.5; // Reduce effective height for lower gravity
         }
 
         double maxHeight = HEIGHT_LIMITS.getOrDefault(jumpEffectAmplifier, Double.MAX_VALUE);
